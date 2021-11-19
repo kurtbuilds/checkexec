@@ -59,6 +59,7 @@ fn main() {
         let mut child = Command::new(command);
         child.args(command_and_args);
         let mut child = child.spawn().expect(&format!("Failed to execute command {}", command));
-        child.wait();
+        let output = child.wait_with_output().unwrap();
+        exit(output.status.code().unwrap());
     }
 }
