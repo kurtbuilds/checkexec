@@ -1,3 +1,5 @@
+Links: [Source](https://github.com/kurtbuilds/checkexec) | [crates.io](https://crates.io/crates/checkexec)
+
 `checkexec` is a tool to conditionally execute commands 
 based on modified timestamps of a target and a dependency list. 
 
