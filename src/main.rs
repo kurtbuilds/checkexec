@@ -90,10 +90,12 @@ jeffre
     if needs_execute {
         let mut command_and_args = args.values_of("command").unwrap().into_iter();
         let command = command_and_args.next().unwrap();
-        let mut child = Command::new(command);
-        child.args(command_and_args);
-        let mut child = child.spawn().expect(&format!("Failed to execute command {}", command));
-        let output = child.wait_with_output().unwrap();
+        if verbose {
+            eprintln!("Executing command: {} {}", command, command_and_args.map(|s| format!("\"{}\"", s)).collect::<Vec<String>>().join(" "));
+        }
+        let output = Command::new(command)
+            .args(command_and_args)
+            .output().expect(&format!("Failed to execute command {}", command))
         exit(output.status.code().unwrap());
     }
 }
