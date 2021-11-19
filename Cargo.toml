@@ -1,0 +1,11 @@
+[package]
+name = "checkexec"
+version = "0.1.0"
+edition = "2018"
+authors = ["Kurt Wolf <kurtwolfbuilds@gmail.com>"]
+description = "Conditionally run a command (Like Makefile functionality)"
+license = "MIT"
+repository = "https://github.com/kurtbuilds/checkexec"
+
+[dependencies]
+clap = { version = "3.0.0-beta.4", features = ["color", "env", "suggestions"]}
