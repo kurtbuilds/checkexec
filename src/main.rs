@@ -95,7 +95,7 @@ jeffre
         }
         let output = Command::new(command)
             .args(command_and_args)
-            .output().expect(&format!("Failed to execute command {}", command))
+            .output().expect(&format!("Failed to execute command {}", command));
         exit(output.status.code().unwrap());
     }
 }
