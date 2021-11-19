@@ -40,6 +40,6 @@ version level:
 publish:
     cargo publish
 
-patch:
+patch: test
     just version patch
     just publish

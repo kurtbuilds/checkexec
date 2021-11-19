@@ -90,11 +90,12 @@ jeffre
     if needs_execute {
         let mut command_and_args = args.values_of("command").unwrap().into_iter();
         let command = command_and_args.next().unwrap();
+        let args = command_and_args.collect::<Vec<&str>>();
         if verbose {
-            eprintln!("Executing command: {} {}", command, command_and_args.map(|s| format!("\"{}\"", s)).collect::<Vec<String>>().join(" "));
+            eprintln!("Executing command: {} {}", command, args.iter().map(|s| format!("\"{}\"", s)).collect::<Vec<String>>().join(" "));
         }
         let output = Command::new(command)
-            .args(command_and_args)
+            .args(args.into_iter())
             .output().expect(&format!("Failed to execute command {}", command));
         exit(output.status.code().unwrap());
     }
