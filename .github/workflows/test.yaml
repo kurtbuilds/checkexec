@@ -1,0 +1,28 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+
+defaults:
+  run:
+    shell: bash
+
+
+jobs:
+  run-test:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions-rs/toolchain@v1
+    - uses: Swatinem/rust-cache@v1
+    - run: cargo install just
+    - run: just test
