@@ -1,13 +1,13 @@
 use std::fmt::Debug;
 use std::path::{Path};
 use std::process::{exit, Command};
-use std::str::FromStr;
+
 use anyhow::Result;
 
-use clap::{App, AppSettings, Arg, ArgMatches, ArgSettings};
+use clap::{App, AppSettings, Arg};
 use std::fs;
 
-const VERSION: &'static str = env!("CARGO_PKG_VERSION");
+const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 
 struct Error {
@@ -38,7 +38,7 @@ macro_rules! err {
 
 
 fn infer_dependencies<'a>(command: &Vec<&'a str>) -> Result<Vec<&'a str>> {
-    let inferred_deps = command.into_iter()
+    let inferred_deps = command.iter()
         .filter_map(|s| fs::metadata(s).ok().map(|_| *s))
         .collect::<Vec<&str>>();
     if inferred_deps.is_empty() {
@@ -157,15 +157,15 @@ mod test {
         for i in 0..touched {
             touch(&files[i]).unwrap();
         }
-        return TempFiles {
+        TempFiles {
             dir: tempdir,
             files,
-        };
+        }
     }
 
     #[test]
     fn test_infer_dependencies() {
-        let TempFiles { dir, files } = touch_and_untouch(3, 0);
+        let TempFiles { dir: _, files } = touch_and_untouch(3, 0);
         eprintln!("Testing file : {}", fs::metadata(Path::new(&files[0])).is_ok());
         let dependencies = infer_dependencies(&vec![
             "cc",
@@ -177,7 +177,7 @@ mod test {
 
     #[test]
     fn test_no_inferred_dependencies_errors() {
-        let TempFiles { dir, files } = touch_and_untouch(0, 1);
+        let TempFiles { dir: _, files } = touch_and_untouch(0, 1);
         assert!(infer_dependencies(&vec![
             "cc",
             &files[0],
@@ -186,25 +186,25 @@ mod test {
 
     #[test]
     fn test_should_execute_errors_on_failed_dependency_access() {
-        let TempFiles { dir, files } = touch_and_untouch(1, 1);
+        let TempFiles { dir: _, files } = touch_and_untouch(1, 1);
         assert!(should_execute(&files[0], &files[1..]).is_err(), "Should have failed to access file");
     }
 
     #[test]
     fn test_should_execute_target_doesnt_exist() {
-        let TempFiles { dir, files } = touch_and_untouch(1, 1);
+        let TempFiles { dir: _, files } = touch_and_untouch(1, 1);
         assert!(should_execute(&files[1], &files[0..1]).unwrap(), "Should execute because target doesn't exist");
     }
 
     #[test]
     fn test_should_not_execute_newer_target() {
-        let TempFiles { dir, files } = touch_and_untouch(2, 0);
+        let TempFiles { dir: _, files } = touch_and_untouch(2, 0);
         assert!(!should_execute(&files[1], &files[0..1]).unwrap(), "Should not execute because target is newer");
     }
 
     #[test]
     fn test_should_execute_newer_dependencies() {
-        let TempFiles { dir, files } = touch_and_untouch(2, 0);
+        let TempFiles { dir: _, files } = touch_and_untouch(2, 0);
         assert!(should_execute(&files[0], &files[1..]).unwrap())
     }
 }

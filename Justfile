@@ -26,6 +26,9 @@ test *args:
 check:
     cargo check
 
+fix:
+    cargo clippy --fix
+
 # Bump version. level=major,minor,patch
 version level:
     git diff-index --exit-code HEAD > /dev/null || ! echo You have untracked changes. Commit your changes before bumping the version.
