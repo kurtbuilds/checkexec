@@ -1,6 +1,6 @@
 [package]
 name = "checkexec"
-version = "0.1.7"
+version = "0.1.8"
 edition = "2018"
 authors = ["Kurt Wolf <kurtwolfbuilds@gmail.com>"]
 description = "Conditionally run a command (Like Makefile functionality)"
