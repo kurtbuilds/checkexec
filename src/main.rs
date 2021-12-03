@@ -166,7 +166,7 @@ mod test {
 
     #[test]
     fn test_infer_dependencies() {
-        let TempFiles { dir: _, files } = touch_and_untouch(3, 0);
+        let TempFiles { dir: _dir, files } = touch_and_untouch(3, 0);
         eprintln!("Testing file : {}", fs::metadata(Path::new(&files[0])).is_ok());
         let dependencies = infer_dependencies(&["cc",
             &files[0],
@@ -176,32 +176,32 @@ mod test {
 
     #[test]
     fn test_no_inferred_dependencies_errors() {
-        let TempFiles { dir: _, files } = touch_and_untouch(0, 1);
+        let TempFiles { dir: _dir, files } = touch_and_untouch(0, 1);
         assert!(infer_dependencies(&["cc",
             &files[0]]).is_err())
     }
 
     #[test]
     fn test_should_execute_errors_on_failed_dependency_access() {
-        let TempFiles { dir: _, files } = touch_and_untouch(1, 1);
+        let TempFiles { dir: _dir, files } = touch_and_untouch(1, 1);
         assert!(should_execute(&files[0], &files[1..]).is_err(), "Should have failed to access file");
     }
 
     #[test]
     fn test_should_execute_target_doesnt_exist() {
-        let TempFiles { dir: _, files } = touch_and_untouch(1, 1);
+        let TempFiles { dir: _dir, files } = touch_and_untouch(1, 1);
         assert!(should_execute(&files[1], &files[0..1]).unwrap(), "Should execute because target doesn't exist");
     }
 
     #[test]
     fn test_should_not_execute_newer_target() {
-        let TempFiles { dir: _, files } = touch_and_untouch(2, 0);
+        let TempFiles { dir: _dir, files } = touch_and_untouch(2, 0);
         assert!(!should_execute(&files[1], &files[0..1]).unwrap(), "Should not execute because target is newer");
     }
 
     #[test]
     fn test_should_execute_newer_dependencies() {
-        let TempFiles { dir: _, files } = touch_and_untouch(2, 0);
+        let TempFiles { dir: _dir, files } = touch_and_untouch(2, 0);
         assert!(should_execute(&files[0], &files[1..]).unwrap())
     }
 }
