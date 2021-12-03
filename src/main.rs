@@ -1,12 +1,11 @@
 use std::fmt::Debug;
-use std::path::{Path, PathBuf};
+use std::path::{Path};
 use std::process::{exit, Command};
 use std::str::FromStr;
 use anyhow::Result;
 
 use clap::{App, AppSettings, Arg, ArgMatches, ArgSettings};
 use std::fs;
-use tempfile::TempDir;
 
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
@@ -137,7 +136,7 @@ jeffre
 mod test {
     use std::io::Write;
     use super::*;
-    use tempfile::tempdir;
+    use tempfile::{TempDir, tempdir};
 
     struct TempFiles {
         pub dir: TempDir,
