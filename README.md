@@ -27,9 +27,9 @@ This provides the behavior of Makefile, where a target is only run if the artifa
 
 # Examples
 
+In this example, the arguments are: `<target> <dependency list> -- <command>`. The `--` is a required separator.
+
     checkexec build/my-c-program src/my-c-program.c -- cc -o build/my-c-program src/my-c-program.c
-    # In this example, the arguments are: <target> <dependency list> -- <command>
-    # The -- is a required separator.
 
 By default, `checkexec` executes the command directly, not in a shell. If you need a shell, for example, to use `&&`,
 call the shell explicitly.
