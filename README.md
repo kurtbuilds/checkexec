@@ -33,7 +33,7 @@ The arguments are: `<target> <dependencies...> -- <command>`. The `--` is a requ
 
     checkexec build/my-bin src/my-program.c -- cc -o build/my-bin src/my-program.c
 
-By default, `checkexec` executes the command directly, so shell constructs like '&&' and '||' are not supported.
+`checkexec` executes the command directly, so shell constructs like '&&' and '||' are not supported.
 You can use `/bin/bash -c` as the command, but escaping is tricky. You're likely better off using two invocations of
 `checkexec`.
 
@@ -64,7 +64,7 @@ modern build process and command runner. `just` fixes numerous problems with
 `checkexec` exit codes behave as you would expect, specifically:
 
 - 0 (success) if the command is not run (i.e. target is up to date)
-- 1 if a dependency or the command is not found
+- 1 if a provided dependency or the command is not found
 - Otherwise, when the command is run, checkexec will pass through the command's exit code.
 
 # Contributing
