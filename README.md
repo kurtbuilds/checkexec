@@ -59,6 +59,8 @@ ecosystem-specific tools, you can use `checkexec` as part of any build tool. Her
 modern build process and command runner. `just` fixes numerous problems with
 `make`, and `checkexec` adds back the conditional rebuild functionality of `make`.
 
+`checkexec` has exit code 0 (success) if the command is not run, and uses the exit code of the provided command if it does run the command.
+
 # Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. 
