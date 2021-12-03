@@ -139,6 +139,7 @@ mod test {
     use tempfile::{TempDir, tempdir};
 
     struct TempFiles {
+        #[allow(dead_code)]
         dir: TempDir,
         pub files: Vec<String>,
     }
