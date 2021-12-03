@@ -21,15 +21,15 @@
 
 # Checkexec
 
-`checkexec` is a tool to conditionally execute commands based on modified timestamps of a target and a dependency list.
+`checkexec` is a tool to conditionally execute commands only when files in a dependency list have been updated.
 
-This provides the behavior of Makefile, where a target is only run if the artifact is older than its dependencies.
+This provides the behavior of `make` as a standalone executable, where a command is only run if any of its dependencies have been updated. Like `make`, `checkexec` runs a command if the modified time of any dependency is newer than the modified time of the target. 
 
 # Examples
 
+In this example, the arguments are: `<target> <dependency list> -- <command>`. The `--` is a required separator.
+
     checkexec build/my-c-program src/my-c-program.c -- cc -o build/my-c-program src/my-c-program.c
-    # In this example, the arguments are: <target> <dependency list> -- <command>
-    # The -- is a required separator.
 
 By default, `checkexec` executes the command directly, not in a shell. If you need a shell, for example, to use `&&`,
 call the shell explicitly.
@@ -58,6 +58,8 @@ ecosystem-specific tools, you can use `checkexec` as part of any build tool. Her
 `checkexec` pairs well with [`just`](https://github.com/casey/just) to offer a modular and
 modern build process and command runner. `just` fixes numerous problems with
 `make`, and `checkexec` adds back the conditional rebuild functionality of `make`.
+
+`checkexec` has exit code 0 (success) if the command is not run, and uses the exit code of the provided command if it does run the command.
 
 # Contributing
 
