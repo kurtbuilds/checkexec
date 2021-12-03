@@ -139,7 +139,7 @@ mod test {
     use tempfile::{TempDir, tempdir};
 
     struct TempFiles {
-        pub dir: TempDir,
+        dir: TempDir,
         pub files: Vec<String>,
     }
 
@@ -154,8 +154,8 @@ mod test {
         let mut files: Vec<String> = Vec::new();
         files.extend((0..touched).map(|i| dir.join(i.to_string()).to_str().unwrap().to_string()));
         files.extend((touched..(touched + untouched)).map(|i| dir.join(i.to_string()).to_str().unwrap().to_string()));
-        for i in 0..touched {
-            touch(&files[i]).unwrap();
+        for file in files.iter().take(touched) {
+            touch(file).unwrap();
         }
         TempFiles {
             dir: tempdir,
