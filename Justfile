@@ -20,8 +20,8 @@ install:
 bootstrap:
     cargo install cargo-edit
 
-test:
-    cargo test
+test *args:
+    cargo test {{args}}
 
 check:
     cargo check

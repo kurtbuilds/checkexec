@@ -1,13 +1,77 @@
-use std::path::PathBuf;
+use std::fmt::Debug;
+use std::path::{Path, PathBuf};
 use std::process::{exit, Command};
 use std::str::FromStr;
+use anyhow::Result;
 
 use clap::{App, AppSettings, Arg, ArgMatches, ArgSettings};
 use std::fs;
+use tempfile::TempDir;
 
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 
-fn main() {
+
+struct Error {
+    message: String,
+}
+
+impl std::fmt::Debug for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Error: {}", self.message)
+    }
+}
+
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.message)
+    }
+}
+
+impl std::error::Error for Error {}
+
+macro_rules! err {
+    ($($arg:tt)*) => {
+        Err(Error {
+            message: format!($($arg)*),
+        }.into())
+    }
+}
+
+
+fn infer_dependencies<'a>(command: &Vec<&'a str>) -> Result<Vec<&'a str>> {
+    let inferred_deps = command.into_iter()
+        .filter_map(|s| fs::metadata(s).ok().map(|_| *s))
+        .collect::<Vec<&str>>();
+    if inferred_deps.is_empty() {
+        err!("--infer must find at least one accessible file in command arguments. Command arguments are: {}",
+                  command.iter().map(|s| format!("\"{}\"", s)).collect::<Vec<String>>().join(" ")
+        )
+    } else {
+        Ok(inferred_deps)
+    }
+}
+
+
+fn should_execute<T: AsRef<Path> + Debug>(target: &str, dependencies: &[T]) -> Result<bool> {
+    match fs::metadata(target) {
+        Ok(meta) => {
+            let modified = meta.modified().unwrap();
+            eprintln!("dep {:?}", dependencies);
+            for dependency in dependencies {
+                let dep_meta = fs::metadata(&dependency)?;
+                eprintln!("found {:?}", dependency);
+                if dep_meta.modified().unwrap() > modified {
+                    return Ok(true);
+                }
+            }
+            Ok(false)
+        }
+        Err(_) => Ok(true)
+    }
+}
+
+
+fn main() -> Result<()> {
     let args = App::new("checkexec")
         .version(VERSION)
         .about("Conditionally run a command.\
@@ -18,6 +82,7 @@ jeffre
         .setting(AppSettings::TrailingVarArg)
         .arg(Arg::new("target")
             .about("The file created by this checkexec execution.")
+            .required(true)
         )
         .arg(Arg::new("verbose")
             .long("verbose")
@@ -27,6 +92,7 @@ jeffre
         .arg(Arg::new("infer")
             .long("infer")
             .takes_value(false)
+            .conflicts_with("dependencies")
             .about("Infer the dependency list. The inference takes all arguments to the command, filters it for files, and uses that list.\
              --infer causes checkexec to fail if it creates an empty dependency list.")
         )
@@ -43,70 +109,103 @@ jeffre
     let verbose = args.is_present("verbose");
 
     let target = args.value_of("target").unwrap();
-    let mut dependencies = args.values_of("dependencies").unwrap_or_default().map(str::to_string).collect::<Vec<String>>();
-    if args.is_present("infer") {
-        if !dependencies.is_empty() {
-            eprintln!("--infer is mutually exclusive with explicitly listed dependencies.");
-            exit(1);
-        }
-        let command_args = args.values_of("command").unwrap().into_iter().skip(1).collect::<Vec<&str>>();
-        dependencies = command_args.iter()
-            .filter_map(|s| fs::metadata(s).ok().map(|m| s.to_string()))
-            .collect::<Vec<String>>();
-        if dependencies.is_empty() {
-            eprintln!("checkexec requires --infer to find at least one dependency, but it found no accessible files from the provided command args. Command arguments are: {}",
-                command_args.iter().map(|s| format!("\"{}\"", s)).collect::<Vec<String>>().join(" ")
-            );
-            exit(1);
-        }
+    let command_args = args.values_of("command").unwrap().into_iter().skip(1).collect::<Vec<&str>>();
+    let dependencies = if args.is_present("infer") {
+        infer_dependencies(&command_args)?
+    } else {
+        args.values_of("dependencies").map(|d| d.collect::<Vec<&str>>()).unwrap_or_default()
+    };
+
+    if should_execute(target, &dependencies)? {
+        let command = args.values_of("command").unwrap().collect::<Vec<&str>>();
         if verbose {
-            eprintln!("Found {} dependencies for {}: {}", dependencies.len(), target, dependencies.join(" "));
+            let mut command_iter = command.iter();
+            eprintln!("{} {}", command_iter.next().unwrap(), command_iter.map(|s| format!("\"{}\"", s)).collect::<Vec<String>>().join(" "));
         }
-    }
-
-    let mut needs_execute = false;
-    let mut has_dependencies = false;
-
-    match fs::metadata(target) {
-        Ok(meta) => {
-            for dependency in dependencies {
-                has_dependencies = true;
-                let dep_meta = fs::metadata(&dependency).expect(&format!("Failed to check metadata for dependency {}", dependency));
-                if dep_meta.modified().unwrap() > meta.modified().unwrap() {
-                    needs_execute = true;
-                    break;
-                }
-            }
-        }
-        Err(_) => {
-            needs_execute = true;
-        }
-    }
-
-    if !has_dependencies {
-        needs_execute = true;
-    }
-
-    if needs_execute {
-        let mut command_and_args = args.values_of("command").unwrap().into_iter();
-        let command = command_and_args.next().unwrap();
-        let args = command_and_args.collect::<Vec<&str>>();
-        if verbose {
-            eprintln!("Executing command: {} {}", command, args.iter().map(|s| format!("\"{}\"", s)).collect::<Vec<String>>().join(" "));
-        }
-        let output = Command::new(command)
-            .args(args.into_iter())
-            .output().expect(&format!("Failed to execute command {}", command));
+        let mut command = command.into_iter();
+        let output = Command::new(command.next().unwrap())
+            .args(command)
+            .output()?;
         exit(output.status.code().unwrap());
     }
+
+    Ok(())
 }
+
 
 #[cfg(test)]
 mod test {
+    use std::io::Write;
+    use super::*;
+    use tempfile::tempdir;
 
-    #[test]
-    fn test_it_works() {
-        assert_eq!(2 + 2, 4);
+    struct TempFiles {
+        pub dir: TempDir,
+        pub files: Vec<String>,
     }
 
+    fn touch(path: &str) -> std::io::Result<()> {
+        let mut file = fs::File::create(path).unwrap();
+        file.write_all(b"")
+    }
+
+    fn touch_and_untouch(touched: usize, untouched: usize) -> TempFiles {
+        let tempdir = tempdir().unwrap();
+        let dir = tempdir.path();
+        let mut files: Vec<String> = Vec::new();
+        files.extend((0..touched).map(|i| dir.join(i.to_string()).to_str().unwrap().to_string()));
+        files.extend((touched..(touched + untouched)).map(|i| dir.join(i.to_string()).to_str().unwrap().to_string()));
+        for i in 0..touched {
+            touch(&files[i]).unwrap();
+        }
+        return TempFiles {
+            dir: tempdir,
+            files,
+        };
+    }
+
+    #[test]
+    fn test_infer_dependencies() {
+        let TempFiles { dir, files } = touch_and_untouch(3, 0);
+        eprintln!("Testing file : {}", fs::metadata(Path::new(&files[0])).is_ok());
+        let dependencies = infer_dependencies(&vec![
+            "cc",
+            &files[0],
+            &files[1],
+        ]).unwrap();
+        assert_eq!(dependencies, vec![&files[0], &files[1]]);
+    }
+
+    #[test]
+    fn test_no_inferred_dependencies_errors() {
+        let TempFiles { dir, files } = touch_and_untouch(0, 1);
+        assert!(infer_dependencies(&vec![
+            "cc",
+            &files[0],
+        ]).is_err())
+    }
+
+    #[test]
+    fn test_should_execute_errors_on_failed_dependency_access() {
+        let TempFiles { dir, files } = touch_and_untouch(1, 1);
+        assert!(should_execute(&files[0], &files[1..]).is_err(), "Should have failed to access file");
+    }
+
+    #[test]
+    fn test_should_execute_target_doesnt_exist() {
+        let TempFiles { dir, files } = touch_and_untouch(1, 1);
+        assert!(should_execute(&files[1], &files[0..1]).unwrap(), "Should execute because target doesn't exist");
+    }
+
+    #[test]
+    fn test_should_not_execute_newer_target() {
+        let TempFiles { dir, files } = touch_and_untouch(2, 0);
+        assert!(!should_execute(&files[1], &files[0..1]).unwrap(), "Should not execute because target is newer");
+    }
+
+    #[test]
+    fn test_should_execute_newer_dependencies() {
+        let TempFiles { dir, files } = touch_and_untouch(2, 0);
+        assert!(should_execute(&files[0], &files[1..]).unwrap())
+    }
 }

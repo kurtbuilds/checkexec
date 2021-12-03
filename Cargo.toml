@@ -8,4 +8,8 @@ license = "MIT"
 repository = "https://github.com/kurtbuilds/checkexec"
 
 [dependencies]
+anyhow = "1.0.51"
 clap = { version = "3.0.0-beta.4", features = ["color", "env", "suggestions"]}
+
+[dev-dependencies]
+tempfile = "3.2.0"
