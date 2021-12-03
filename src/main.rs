@@ -55,7 +55,7 @@ fn should_execute<T: AsRef<Path> + Display>(target: &str, dependencies: &[T]) ->
             let modified = meta.modified().unwrap();
             for dependency in dependencies {
                 let dep_meta = fs::metadata(&dependency)
-                    .map_err(|e| err!("{}: Could not read file metadata", &dependency))?;
+                    .map_err(|_| err!("{}: Could not read file metadata", &dependency))?;
                 if dep_meta.modified().unwrap() > modified {
                     return Ok(true);
                 }
