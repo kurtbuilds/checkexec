@@ -37,7 +37,7 @@ macro_rules! err {
 }
 
 
-fn infer_dependencies<'a>(command: &Vec<&'a str>) -> Result<Vec<&'a str>> {
+fn infer_dependencies<'a>(command: &[&'a str]) -> Result<Vec<&'a str>> {
     let inferred_deps = command.iter()
         .filter_map(|s| fs::metadata(s).ok().map(|_| *s))
         .collect::<Vec<&str>>();
