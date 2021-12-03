@@ -27,4 +27,4 @@ jobs:
         toolchain: stable
     - uses: Swatinem/rust-cache@v1
     - run: cargo install just
-    - run: just test
+    - run: just test -- --nocapture
