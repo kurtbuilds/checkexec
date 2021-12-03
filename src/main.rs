@@ -55,10 +55,8 @@ fn should_execute<T: AsRef<Path> + Debug>(target: &str, dependencies: &[T]) -> R
     match fs::metadata(target) {
         Ok(meta) => {
             let modified = meta.modified().unwrap();
-            eprintln!("dep {:?}", dependencies);
             for dependency in dependencies {
                 let dep_meta = fs::metadata(&dependency)?;
-                eprintln!("found {:?} {:?} {:?}", dependency, dep_meta.modified().unwrap(), modified);
                 if dep_meta.modified().unwrap() > modified {
                     return Ok(true);
                 }
@@ -170,7 +168,6 @@ mod test {
     #[test]
     fn test_infer_dependencies() {
         let TempFiles { dir: _dir, files } = touch_and_untouch(3, 0);
-        eprintln!("Testing file : {}", fs::metadata(Path::new(&files[0])).is_ok());
         let dependencies = infer_dependencies(&["cc",
             &files[0],
             &files[1]]).unwrap();
