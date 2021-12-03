@@ -21,9 +21,9 @@
 
 # Checkexec
 
-`checkexec` is a tool to conditionally execute commands based on modified timestamps of a target and a dependency list.
+`checkexec` is a tool to conditionally execute commands only when files in a dependency list have been updated.
 
-This provides the behavior of Makefile as a standalone executable, where a command is only run if any of its dependencies have been updated.
+This provides the behavior of `make` as a standalone executable, where a command is only run if any of its dependencies have been updated. Like `make`, `checkexec` runs a command if the modified time of any dependency is newer than the modified time of the target. 
 
 # Examples
 
