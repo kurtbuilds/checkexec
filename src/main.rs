@@ -58,7 +58,7 @@ fn should_execute<T: AsRef<Path> + Debug>(target: &str, dependencies: &[T]) -> R
             eprintln!("dep {:?}", dependencies);
             for dependency in dependencies {
                 let dep_meta = fs::metadata(&dependency)?;
-                eprintln!("found {:?}", dependency);
+                eprintln!("found {:?} {:?} {:?}", dependency, dep_meta.modified().unwrap(), modified);
                 if dep_meta.modified().unwrap() > modified {
                     return Ok(true);
                 }
