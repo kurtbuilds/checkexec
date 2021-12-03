@@ -1,8 +1,6 @@
-use std::fmt::Debug;
+use std::fmt::{Display};
 use std::path::{Path};
 use std::process::{exit, Command};
-
-use anyhow::Result;
 
 use clap::{App, AppSettings, Arg};
 use std::fs;
@@ -16,7 +14,7 @@ struct Error {
 
 impl std::fmt::Debug for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Error: {}", self.message)
+        write!(f, "{}", self.message)
     }
 }
 
@@ -30,33 +28,34 @@ impl std::error::Error for Error {}
 
 macro_rules! err {
     ($($arg:tt)*) => {
-        Err(Error {
+        Error {
             message: format!($($arg)*),
-        }.into())
+        }
     }
 }
 
 
-fn infer_dependencies<'a>(command: &[&'a str]) -> Result<Vec<&'a str>> {
+fn infer_dependencies<'a>(command: &[&'a str]) -> Result<Vec<&'a str>, Error> {
     let inferred_deps = command.iter()
         .filter_map(|s| fs::metadata(s).ok().map(|_| *s))
         .collect::<Vec<&str>>();
     if inferred_deps.is_empty() {
-        err!("--infer must find at least one accessible file in command arguments. Command arguments are: {}",
+        Err(err!("--infer must find at least one accessible file in command arguments. Command arguments are: {}",
                   command.iter().map(|s| format!("\"{}\"", s)).collect::<Vec<String>>().join(" ")
-        )
+        ))
     } else {
         Ok(inferred_deps)
     }
 }
 
 
-fn should_execute<T: AsRef<Path> + Debug>(target: &str, dependencies: &[T]) -> Result<bool> {
+fn should_execute<T: AsRef<Path> + Display>(target: &str, dependencies: &[T]) -> Result<bool, Error> {
     match fs::metadata(target) {
         Ok(meta) => {
             let modified = meta.modified().unwrap();
             for dependency in dependencies {
-                let dep_meta = fs::metadata(&dependency)?;
+                let dep_meta = fs::metadata(&dependency)
+                    .map_err(|e| err!("{}: Could not read file metadata", &dependency))?;
                 if dep_meta.modified().unwrap() > modified {
                     return Ok(true);
                 }
@@ -68,7 +67,7 @@ fn should_execute<T: AsRef<Path> + Debug>(target: &str, dependencies: &[T]) -> R
 }
 
 
-fn main() -> Result<()> {
+fn main() -> std::result::Result<(), Error> {
     let args = App::new("checkexec")
         .version(VERSION)
         .about("Conditionally run a command.\
@@ -116,14 +115,13 @@ jeffre
     if should_execute(target, &dependencies)? {
         let command = args.values_of("command").unwrap().collect::<Vec<&str>>();
         if verbose {
-            let mut command_iter = command.iter();
-            eprintln!("{} {}", command_iter.next().unwrap(), command_iter.map(|s| format!("\"{}\"", s)).collect::<Vec<String>>().join(" "));
+            eprintln!("{} {}", command[0], command.iter().skip(1).map(|s| format!("\"{}\"", s)).collect::<Vec<String>>().join(" "));
         }
-        let mut command = command.into_iter();
-        let output = Command::new(command.next().unwrap())
-            .args(command)
-            .output()?;
-        exit(output.status.code().unwrap());
+        let output = Command::new(command[0])
+            .args(command[1..].iter())
+            .status()
+            .map_err(|_| err!("{}: command not found", command[0]))?;
+        exit(output.code().unwrap());
     }
 
     Ok(())

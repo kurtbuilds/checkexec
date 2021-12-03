@@ -23,30 +23,30 @@
 
 `checkexec` is a tool to conditionally execute commands only when files in a dependency list have been updated.
 
-This provides the behavior of `make` as a standalone executable, where a command is only run if any of its dependencies have been updated. Like `make`, `checkexec` runs a command if the modified time of any dependency is newer than the modified time of the target. 
+This tool provides the behavior of `make` as a standalone executable, where a command is only run if any of its 
+dependencies have been updated. Like `make`, `checkexec` runs a command only if the modified time of any dependency 
+is newer than the modified time of the target. 
 
-# Examples
+# Usage
 
-In this example, the arguments are: `<target> <dependency list> -- <command>`. The `--` is a required separator.
+The arguments are: `<target> <dependencies...> -- <command>`. The `--` is a required separator.
 
-    checkexec build/my-c-program src/my-c-program.c -- cc -o build/my-c-program src/my-c-program.c
+    checkexec build/my-bin src/my-program.c -- cc -o build/my-bin src/my-program.c
 
-By default, `checkexec` executes the command directly, not in a shell. If you need a shell, for example, to use `&&`,
-call the shell explicitly.
+By default, `checkexec` executes the command directly, so shell constructs like '&&' and '||' are not supported.
+You can use `/bin/bash -c` as the command, but escaping is tricky. You're likely better off using two invocations of
+`checkexec`.
 
-    checkexec build/my-c-program src/my-c-program.c -- /bin/bash "cc -o build/my-c-program src/my-c-program.c && cp build/my-c-program /usr/local/bin/my-c-program"
+You can infer the dependency list with `--infer`, where checkexec will inspect the arguments of `<command>` for 
+accessible paths. `--infer` will fail if no files are found.
 
-You can also infer the dependency list, where checkexec will inspect each argument of the `<command>` for paths that
-exist on the filesystem. `--infer` will cause checkexec to fail if it doesn't find any files.
-
-    checkexec build/my-c-program --infer -- cc -o build/my-c-program src/my-c-program.c
-
+    checkexec build/my-bin --infer -- cc -o build/my-bin src/my-program.c
 
 # Installation
 
     cargo install checkexec
 
-# Usage
+# Usage Notes
 
 `checkexec` is great for when you build files from other files. Instead of relying on
 ecosystem-specific tools, you can use `checkexec` as part of any build tool. Here are some examples:
@@ -59,7 +59,13 @@ ecosystem-specific tools, you can use `checkexec` as part of any build tool. Her
 modern build process and command runner. `just` fixes numerous problems with
 `make`, and `checkexec` adds back the conditional rebuild functionality of `make`.
 
-`checkexec` has exit code 0 (success) if the command is not run, and uses the exit code of the provided command if it does run the command.
+### Exit codes
+
+`checkexec` exit codes behave as you would expect, specifically:
+
+- 0 (success) if the command is not run (i.e. target is up to date)
+- 1 if a dependency or the command is not found
+- Otherwise, when the command is run, checkexec will pass through the command's exit code.
 
 # Contributing
 
