@@ -168,21 +168,17 @@ mod test {
     fn test_infer_dependencies() {
         let TempFiles { dir: _, files } = touch_and_untouch(3, 0);
         eprintln!("Testing file : {}", fs::metadata(Path::new(&files[0])).is_ok());
-        let dependencies = infer_dependencies(&vec![
-            "cc",
+        let dependencies = infer_dependencies(&["cc",
             &files[0],
-            &files[1],
-        ]).unwrap();
+            &files[1]]).unwrap();
         assert_eq!(dependencies, vec![&files[0], &files[1]]);
     }
 
     #[test]
     fn test_no_inferred_dependencies_errors() {
         let TempFiles { dir: _, files } = touch_and_untouch(0, 1);
-        assert!(infer_dependencies(&vec![
-            "cc",
-            &files[0],
-        ]).is_err())
+        assert!(infer_dependencies(&["cc",
+            &files[0]]).is_err())
     }
 
     #[test]
