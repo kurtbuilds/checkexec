@@ -1,27 +1,46 @@
-Links: [Source](https://github.com/kurtbuilds/checkexec) | [crates.io](https://crates.io/crates/checkexec)
+<div id="top"></div>
 
-`checkexec` is a tool to conditionally execute commands 
-based on modified timestamps of a target and a dependency list. 
+<p align="center">
+<a href="https://github.com/kurtbuilds/checkexec/graphs/contributors">
+    <img src="https://img.shields.io/github/contributors/kurtbuilds/checkexec.svg?style=flat-square" alt="GitHub Contributors" />
+</a>
+<a href="https://github.com/kurtbuilds/checkexec/stargazers">
+    <img src="https://img.shields.io/github/stars/kurtbuilds/checkexec.svg?style=flat-square" alt="Stars" />
+</a>
+<a href="https://github.com/kurtbuilds/checkexec/actions">
+    <img src="https://img.shields.io/github/workflow/status/kurtbuilds/checkexec/Run%20Tests?style=flat-square" alt="Build Status" />
+</a>
+<a href="https://crates.io/crates/checkexec">
+    <img src="https://img.shields.io/crates/d/checkexec?style=flat-square" alt="Downloads" />
+</a>
+<a href="https://crates.io/crates/checkexec">
+    <img src="https://img.shields.io/crates/v/checkexec?style=flat-square" alt="Crates.io" />
+</a>
 
-`checkexec` pairs well with [`just`](https://github.com/casey/just) to offer a modular and
-modern build process and command runner toolkit. `just` fixes numerous problems with
-`make`, and `checkexec` adds back the conditional rebuild functionality of `make`.
+</p>
 
-#### Why not use `make`?
+# Checkexec
 
-`make` has numerous usability problems which are discussed on the [`just` Readme](https://github.com/casey/just).
-`make` also violates the single responsibility principle by being both a build 
-recipe tool and a dependency manager. `just` solves that problem, but it
-does not have built-in functionality to resolve dependencies. `checkexec` fills that gap.
+`checkexec` is a tool to conditionally execute commands based on modified timestamps of a target and a dependency list.
 
-# Use cases
+This provides the behavior of Makefile, where a target is only run if the artifact is older than its dependencies.
 
-`checkexec` is great for when you build files from other files. Instead of relying on an 
-ecosystem specific tool, you can use `checkexec` as part of any build tool. Here are some examples:
+# Examples
 
-- You build images as part of your build command, and don't want to recompile them unless you need to.
-- You build C libaries as part of your Python, Rust, Node (or any other) build process.
-- You build Sass/Less/SCSS files and don't want to re-build them unnecessarily.
+    checkexec build/my-c-program src/my-c-program.c -- cc -o build/my-c-program src/my-c-program.c
+    # In this example, the arguments are: <target> <dependency list> -- <command>
+    # The -- is a required separator.
+
+By default, `checkexec` executes the command directly, not in a shell. If you need a shell, for example, to use `&&`,
+call the shell explicitly.
+
+    checkexec build/my-c-program src/my-c-program.c -- /bin/bash "cc -o build/my-c-program src/my-c-program.c && cp build/my-c-program /usr/local/bin/my-c-program"
+
+You can also infer the dependency list, where checkexec will inspect each argument of the `<command>` for paths that
+exist on the filesystem. `--infer` will cause checkexec to fail if it doesn't find any files.
+
+    checkexec build/my-c-program --infer -- cc -o build/my-c-program src/my-c-program.c
+
 
 # Installation
 
@@ -29,18 +48,24 @@ ecosystem specific tool, you can use `checkexec` as part of any build tool. Here
 
 # Usage
 
-Here's a simple example to compile a c program only if its source file has been updated.
+`checkexec` is great for when you build files from other files. Instead of relying on
+ecosystem-specific tools, you can use `checkexec` as part of any build tool. Here are some examples:
 
-    checkexec build/my-c-program src/my-c-program.c -- cc -o build/my-c-program src/my-c-program.c
+- You build, resize, or sample images as part of your build command, but don't want to rebuild them unless needed.
+- You build C libaries as part of your Python, Rust, Node (or any other) build process.
+- You build Sass/Less/SCSS files and don't want to re-build them unnecessarily.
 
-By default, `checkexec` executes the command directly, not in a shell. If you want to use a shell, specify it explicitly.
+`checkexec` pairs well with [`just`](https://github.com/casey/just) to offer a modular and
+modern build process and command runner. `just` fixes numerous problems with
+`make`, and `checkexec` adds back the conditional rebuild functionality of `make`.
 
-    checkexec build/my-c-program src/my-c-program.c -- /bin/bash "cc -o build/my-c-program src/my-c-program.c && cp build/my-c-program /usr/local/bin/my-c-program"
+# Contributing
 
-Now, let's see `checkexec` in a `Justfile`.
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. 
+Any contributions you make are **greatly appreciated**.
 
-    # Justfile
-    build:
-        checkexec target/debug/myprogram src/main.rs -- cargo build
+If you have a suggestion that would make this better, please fork the repo and create a pull request. 
+You can also simply open an issue with the tag "enhancement".
+Don't forget to give the project a star!
 
-Using this file, `just build` will only build the program if the source file has been updated, whereas the default `cargo build` usage will always build the program.
+<p align="right">(<a href="#top">back to top</a>)</p>
