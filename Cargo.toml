@@ -9,7 +9,7 @@ repository = "https://github.com/kurtbuilds/checkexec"
 
 categories = [
     "development-tools",
-    "development-tools::builds-utils",
+    "development-tools::build-utils",
     "command-line-utilities",
 ]
 
