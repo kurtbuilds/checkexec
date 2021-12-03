@@ -23,7 +23,7 @@
 
 `checkexec` is a tool to conditionally execute commands based on modified timestamps of a target and a dependency list.
 
-This provides the behavior of Makefile as a standalone executable, where a command is only run if the artifact is older than its dependencies.
+This provides the behavior of Makefile as a standalone executable, where a command is only run if any of its dependencies have been updated.
 
 # Examples
 
