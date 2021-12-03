@@ -157,6 +157,9 @@ mod test {
         files.extend((touched..(touched + untouched)).map(|i| dir.join(i.to_string()).to_str().unwrap().to_string()));
         for file in files.iter().take(touched) {
             touch(file).unwrap();
+            // tries to eliminate ties between files. 1ms should be more than enough
+            // and we dont need a ton of tests for this program where 1ms is noticeable.
+            std::thread::sleep(std::time::Duration::from_millis(1));
         }
         TempFiles {
             dir: tempdir,
