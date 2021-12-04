@@ -25,6 +25,7 @@ test *args:
 
 check:
     cargo check
+alias c := check
 
 fix:
     cargo clippy --fix

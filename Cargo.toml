@@ -7,6 +7,7 @@ description = "Conditionally run a command in a CLI (like Make, as a standalone 
 license = "MIT"
 repository = "https://github.com/kurtbuilds/checkexec"
 
+# categories are https://crates.io/category_slugs
 categories = [
     "development-tools",
     "development-tools::build-utils",
