@@ -1,4 +1,4 @@
-name: Run Tests
+name: test
 
 on:
   push:
@@ -27,4 +27,4 @@ jobs:
         toolchain: stable
     - uses: Swatinem/rust-cache@v1
     - run: cargo install just
-    - run: just test -- --nocapture
+    - run: just test
