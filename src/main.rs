@@ -70,10 +70,7 @@ fn should_execute<T: AsRef<Path> + Display>(target: &str, dependencies: &[T]) ->
 fn main() -> std::result::Result<(), Error> {
     let args = App::new("checkexec")
         .version(VERSION)
-        .help("Conditionally run a command.\
-jeffre
-        This b
-        ")
+        .about("Conditionally run a command (like `make`)")
         .setting(AppSettings::ArgRequiredElseHelp)
         .setting(AppSettings::TrailingVarArg)
         .arg(Arg::new("target")
@@ -89,7 +86,7 @@ jeffre
             .long("infer")
             .takes_value(false)
             .conflicts_with("dependencies")
-            .help("Infer the dependency list. The inference takes all arguments to the command, filters it for files, and uses that list.\
+            .help("Infer the dependency list. The inference takes all arguments to the command, filters it for files, and uses that list. \
              --infer causes checkexec to fail if it creates an empty dependency list.")
         )
         .arg(Arg::new("dependencies").min_values(0)
