@@ -36,6 +36,7 @@ name = "checkexec"
 version = "0.1.19"
 dependencies = [
  "clap",
+ "shell-escape",
  "tempdir",
  "tempfile",
 ]
@@ -218,6 +219,12 @@ checksum = "3acd125665422973a33ac9d3dd2df85edad0f4ae9b00dafb1a05e43a9f5ef8e7"
 dependencies = [
  "winapi",
 ]
+
+[[package]]
+name = "shell-escape"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "45bb67a18fa91266cc7807181f62f9178a6873bfad7dc788c42e6430db40184f"
 
 [[package]]
 name = "strsim"

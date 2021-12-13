@@ -1,9 +1,11 @@
+use std::borrow::Cow;
 use std::fmt::{Display};
 use std::path::{Path};
 use std::process::{exit, Command};
 
 use clap::{App, AppSettings, Arg};
 use std::fs;
+use shell_escape::escape;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -107,7 +109,14 @@ fn main() -> std::result::Result<(), Error> {
         infer_dependencies(&command_args)?
     } else {
         args.values_of("dependencies").map(|d| d.collect::<Vec<&str>>()).unwrap_or_default()
-    };
+    }
+        .iter()
+        .flat_map(|s| s.split('\n'))
+        .collect::<Vec<&str>>();
+
+    if verbose {
+        eprintln!("Found {} dependencies:\n{}", dependencies.len(), dependencies.iter().map(|d| escape(Cow::Borrowed(d))).collect::<Vec<_>>().join("\n"));
+    }
 
     if should_execute(target, &dependencies)? {
         let command = args.values_of("command").unwrap().collect::<Vec<&str>>();

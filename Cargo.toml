@@ -24,6 +24,7 @@ keywords = [
 
 [dependencies]
 clap = { version = "3.0.0-rc.4", features = ["color", "env", "suggestions"]}
+shell-escape = "0.1.5"
 tempdir = "0.3.7"
 
 [dev-dependencies]
