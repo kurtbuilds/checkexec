@@ -55,9 +55,16 @@ ecosystem-specific tools, you can use `checkexec` as part of any build tool. Her
 - You build C libaries as part of your Python, Rust, Node (or any other) build process.
 - You build Sass/Less/SCSS files and don't want to re-build them unnecessarily.
 
-`checkexec` pairs well with [`just`](https://github.com/casey/just) to offer a modular and
-modern build process and command runner. `just` fixes numerous problems with
-`make`, and `checkexec` adds back the conditional rebuild functionality of `make`.
+`checkexec` pairs well with:
+
+- [`just`](https://github.com/casey/just), creating a modular and modern build process and command runner. 
+  `just` fixes numerous problems with `make`, and `checkexec` adds back the conditional rebuild functionality of `make`.
+- [`fd`](https://github.com/sharkdp/fd), making it easy to specify a dependency file list. Example here:
+
+```bash
+# Only run your command if a rust file has changed. Note cargo does approximately the same thing  natively, 
+but you can easily tailor this structure to a custom case.
+checkexec target/debug/hello $(fd -e rs . src) -- cargo build
 
 ### Exit codes
 
