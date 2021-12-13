@@ -70,14 +70,14 @@ fn should_execute<T: AsRef<Path> + Display>(target: &str, dependencies: &[T]) ->
 fn main() -> std::result::Result<(), Error> {
     let args = App::new("checkexec")
         .version(VERSION)
-        .about("Conditionally run a command.\
+        .help("Conditionally run a command.\
 jeffre
         This b
         ")
         .setting(AppSettings::ArgRequiredElseHelp)
         .setting(AppSettings::TrailingVarArg)
         .arg(Arg::new("target")
-            .about("The file created by this checkexec execution.")
+            .help("The file created by this checkexec execution.")
             .required(true)
         )
         .arg(Arg::new("verbose")
@@ -89,16 +89,16 @@ jeffre
             .long("infer")
             .takes_value(false)
             .conflicts_with("dependencies")
-            .about("Infer the dependency list. The inference takes all arguments to the command, filters it for files, and uses that list.\
+            .help("Infer the dependency list. The inference takes all arguments to the command, filters it for files, and uses that list.\
              --infer causes checkexec to fail if it creates an empty dependency list.")
         )
         .arg(Arg::new("dependencies").min_values(0)
-            .about("The list of files")
+            .help("The list of files")
         )
         .arg(Arg::new("command").min_values(1)
             .last(true)
             .required(true)
-            .about("The command to execute if the check passes.")
+            .help("The command to execute if the check passes.")
         )
         .get_matches();
 
