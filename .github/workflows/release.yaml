@@ -71,10 +71,6 @@ jobs:
       if: matrix.native
       run: cargo test --all --target ${{ matrix.target }}
 
-    - name: Ref Type
-      id: ref-type
-      run: cargo run --package ref-type -- --reference ${{ github.ref }}
-
     - name: Package
       id: package
       env:
@@ -82,7 +78,7 @@ jobs:
         REF: ${{ github.ref }}
         OS: ${{ matrix.os }}
         TARGET_RUSTFLAGS: ${{ matrix.target_rustflags }}
-      run: ./bin/package
+      run: ./.github/package
       shell: bash
 
     - name: Publish Archive
