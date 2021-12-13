@@ -87,7 +87,7 @@ jobs:
       with:
         draft: false
         files: ${{ steps.package.outputs.archive }}
-        prerelease: ${{ steps.ref-type.outputs.value != 'release' }}
+        prerelease: ${{ !contains(github.ref_name, "-") }} ## looking for a bare semver number rather than a tagged one like 1.0.0-beta.2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -101,6 +101,6 @@ jobs:
       with:
         draft: false
         files: CHANGELOG.md
-        prerelease: ${{ steps.ref-type.outputs.value != 'release' }}
+        prerelease: ${{ !contains(github.ref_name, "-") }} ## looking for a bare semver number rather than a tagged one like 1.0.0-beta.2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
