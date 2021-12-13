@@ -62,8 +62,8 @@ ecosystem-specific tools, you can use `checkexec` as part of any build tool. Her
 - [`fd`](https://github.com/sharkdp/fd), making it easy to specify a dependency file list. Example here:
 
 ```bash
-# Only run your command if a rust file has changed. Note cargo does approximately the same thing  natively, 
-but you can easily tailor this structure to a custom case.
+# Only run your command if a rust file has changed. Note cargo does approximately the 
+# same thing natively, but you can easily tailor this structure to a custom case.
 checkexec target/debug/hello $(fd -e rs . src) -- cargo build
 ```
 
