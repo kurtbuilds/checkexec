@@ -1,6 +1,6 @@
 [package]
 name = "checkexec"
-version = "0.1.19"
+version = "0.2.0"
 edition = "2018"
 authors = ["Kurt Wolf <kurtwolfbuilds@gmail.com>"]
 description = "Conditionally run a command in a CLI (like Make, as a standalone tool)"
