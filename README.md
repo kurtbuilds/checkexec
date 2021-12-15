@@ -61,7 +61,7 @@ ecosystem-specific tools, you can use `checkexec` as part of any build tool. Her
   conditional rebuild functionality of `make`. Together, they create a modular and modern build process and 
   command runner.
 - [`watchexec`](https://github.com/watchexec/watchexec) provides live relaading/re-building, while `checkexec` 
-- has callable behavior, useful as a build step or on CI. The naming similarity is intentional.
+  has callable behavior, useful as a build step or on CI. The naming similarity is intentional.
 - [`fd`](https://github.com/sharkdp/fd) makes it easy to specify a dependency file list. Example here:
 
 ```bash
