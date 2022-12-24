@@ -8,7 +8,7 @@
     <img src="https://img.shields.io/github/stars/kurtbuilds/checkexec.svg?style=flat-square" alt="Stars" />
 </a>
 <a href="https://github.com/kurtbuilds/checkexec/actions">
-    <img src="https://img.shields.io/github/workflow/status/kurtbuilds/checkexec/Run%20Tests?style=flat-square" alt="Build Status" />
+    <img src="https://img.shields.io/github/actions/workflow/status/kurtbuilds/checkexec/test.yaml?style=flat-square" alt="Build Status" />
 </a>
 <a href="https://crates.io/crates/checkexec">
     <img src="https://img.shields.io/crates/d/checkexec?style=flat-square" alt="Downloads" />
